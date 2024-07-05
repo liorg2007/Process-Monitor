@@ -34,6 +34,7 @@ private:
     static constexpr auto MEMINFO_FILE_PATH = "/proc/meminfo";
     static constexpr std::filesystem::path PROC_DIR_PATH{"/proc"};
     static constexpr auto STATUS_FILE_PATH = "/status";
+    static constexpr  auto VM_RSS_KEY = "VmRSS";
 
     static constexpr auto MEMINFO_FILE_ERROR = "Can't open /proc/meminfo";
 
@@ -42,8 +43,8 @@ private:
     [[nodiscard]] std::string GetProcessName(std::ifstream& statusFile) const;
     [[nodiscard]] double GetProcessMemoryUsage(std::ifstream& statusFile) const;
     [[nodiscard]] double GetProcessCPU_Usage(const std::filesystem::directory_entry& dir) const;
-    [[nodiscard]] std::string GetStringValFromLine(const std::string& line) const;
-    [[nodiscard]] int GetIntegerValFromLine(const std::string& line) const;
+    std::string GetStringValFromLine(const std::string& line) const;
+    int GetIntegerValFromLine(const std::string& line) const;
 
     const int memTotal_;
 };

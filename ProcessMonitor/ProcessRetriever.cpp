@@ -57,6 +57,16 @@ std::string ProcessRetreiver::GetProcessName(std::ifstream &statusFile) const {
     return GetStringValFromLine(firstLine);
 }
 
+double ProcessRetreiver::GetProcessMemoryUsage(std::ifstream &statusFile) const {
+    std::string line;
+    std::getline(statusFile, line);
+
+    while(!line.starts_with(VM_RSS_KEY))
+        std::getline(statusFile, line);
+
+    return GetIntegerValFromLine(line) / static_cast<double>(memTotal_) * 100;
+}
+
 /*
 format:
 Key:    value

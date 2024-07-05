@@ -51,13 +51,13 @@ build cmake_object_order_depends_target_ProcessMonitor: phony || CMakeFiles/Proc
 
 build CMakeFiles/ProcessMonitor.dir/main.cpp.o: CXX_COMPILER__ProcessMonitor_unscanned_Debug /home/lior/CLionProjects/ProcessMonitor/process-monitor/ProcessMonitor/main.cpp || cmake_object_order_depends_target_ProcessMonitor
   DEP_FILE = CMakeFiles/ProcessMonitor.dir/main.cpp.o.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles/ProcessMonitor.dir
   OBJECT_FILE_DIR = CMakeFiles/ProcessMonitor.dir
 
 build CMakeFiles/ProcessMonitor.dir/ProcessRetriever.cpp.o: CXX_COMPILER__ProcessMonitor_unscanned_Debug /home/lior/CLionProjects/ProcessMonitor/process-monitor/ProcessMonitor/ProcessRetriever.cpp || cmake_object_order_depends_target_ProcessMonitor
   DEP_FILE = CMakeFiles/ProcessMonitor.dir/ProcessRetriever.cpp.o.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles/ProcessMonitor.dir
   OBJECT_FILE_DIR = CMakeFiles/ProcessMonitor.dir
 
