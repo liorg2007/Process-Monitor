@@ -38,6 +38,9 @@ private:
 
     bool IsNumeric(const std::string& string) const;
     [[nodiscard]] int GetMemTotal() const;
+    std::string GetProcessName(const std::filesystem::directory_entry& dir) const;
+    double GetProcessMemoryUsage(const std::filesystem::directory_entry& dir) const;
+    double GetProcessCPU_Usage(const std::filesystem::directory_entry& dir) const;
 
     const int memTotal_;
 };
