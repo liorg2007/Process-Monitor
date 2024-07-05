@@ -7,6 +7,8 @@
 
 #include <sched.h>
 #include <string>
+#include <vector>
+#include <fstream>
 
 struct Process {
     const pid_t PID;
@@ -17,6 +19,16 @@ struct Process {
     Process(const pid_t pid, const std::string& n, const double cpu, const double mem)
         :PID(pid), name(n), CPUUsage(cpu), memUsage(mem)
     {}
+};
+
+class ProcessRetreiver
+{
+public:
+    ProcessRetreiver();
+    [[nodiscard]] std::vector<Process> getRunningProcesses() const;
+
+private:
+    int m_MemTotal;
 };
 
 

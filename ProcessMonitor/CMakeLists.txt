@@ -4,4 +4,5 @@ project(ProcessMonitor)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(ProcessMonitor main.cpp
-        ProcessRetriever.h)
+        ProcessRetriever.h
+        ProcessRetriever.cpp)

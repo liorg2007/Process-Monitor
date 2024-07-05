@@ -55,6 +55,12 @@ build CMakeFiles/ProcessMonitor.dir/main.cpp.o: CXX_COMPILER__ProcessMonitor_uns
   OBJECT_DIR = CMakeFiles/ProcessMonitor.dir
   OBJECT_FILE_DIR = CMakeFiles/ProcessMonitor.dir
 
+build CMakeFiles/ProcessMonitor.dir/ProcessRetriever.cpp.o: CXX_COMPILER__ProcessMonitor_unscanned_Debug /home/lior/CLionProjects/ProcessMonitor/process-monitor/ProcessMonitor/ProcessRetriever.cpp || cmake_object_order_depends_target_ProcessMonitor
+  DEP_FILE = CMakeFiles/ProcessMonitor.dir/ProcessRetriever.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles/ProcessMonitor.dir
+  OBJECT_FILE_DIR = CMakeFiles/ProcessMonitor.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target ProcessMonitor
@@ -63,7 +69,7 @@ build CMakeFiles/ProcessMonitor.dir/main.cpp.o: CXX_COMPILER__ProcessMonitor_uns
 #############################################
 # Link the executable ProcessMonitor
 
-build ProcessMonitor: CXX_EXECUTABLE_LINKER__ProcessMonitor_Debug CMakeFiles/ProcessMonitor.dir/main.cpp.o
+build ProcessMonitor: CXX_EXECUTABLE_LINKER__ProcessMonitor_Debug CMakeFiles/ProcessMonitor.dir/main.cpp.o CMakeFiles/ProcessMonitor.dir/ProcessRetriever.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/ProcessMonitor.dir
   POST_BUILD = :
