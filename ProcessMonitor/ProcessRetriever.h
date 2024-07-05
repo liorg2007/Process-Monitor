@@ -33,14 +33,17 @@ private:
     static constexpr auto DIGITS = "0123456789";
     static constexpr auto MEMINFO_FILE_PATH = "/proc/meminfo";
     static constexpr std::filesystem::path PROC_DIR_PATH{"/proc"};
+    static constexpr auto STATUS_FILE_PATH = "/status";
 
     static constexpr auto MEMINFO_FILE_ERROR = "Can't open /proc/meminfo";
 
-    bool IsNumeric(const std::string& string) const;
+    [[nodiscard]] bool IsNumeric(const std::string& string) const;
     [[nodiscard]] int GetMemTotal() const;
-    std::string GetProcessName(const std::filesystem::directory_entry& dir) const;
-    double GetProcessMemoryUsage(const std::filesystem::directory_entry& dir) const;
-    double GetProcessCPU_Usage(const std::filesystem::directory_entry& dir) const;
+    [[nodiscard]] std::string GetProcessName(std::ifstream& statusFile) const;
+    [[nodiscard]] double GetProcessMemoryUsage(std::ifstream& statusFile) const;
+    [[nodiscard]] double GetProcessCPU_Usage(const std::filesystem::directory_entry& dir) const;
+    [[nodiscard]] std::string GetStringValFromLine(const std::string& line) const;
+    [[nodiscard]] int GetIntegerValFromLine(const std::string& line) const;
 
     const int memTotal_;
 };

@@ -4,6 +4,8 @@
 
 #include "ProcessRetriever.h"
 
+#include <algorithm>
+
 
 ProcessRetreiver::ProcessRetreiver()
  : memTotal_(GetMemTotal()) {
@@ -17,11 +19,13 @@ std::vector<Process> ProcessRetreiver::GetRunningProcesses() const {
             !entry.is_directory())
             continue;
 
+        std::ifstream statusFile(entry.path().string() + STATUS_FILE_PATH);
+
         processes.emplace_back(
             std::stoi(entry.path().filename().string()),
-            GetProcessName(entry),
+            GetProcessName(statusFile),
             GetProcessCPU_Usage(entry),
-            GetProcessMemoryUsage(entry));
+            GetProcessMemoryUsage(statusFile));
     }
     return processes;
 }
@@ -44,6 +48,28 @@ int ProcessRetreiver::GetMemTotal() const {
 
     std::getline(meminfoFile, firstLine); //The MemTotal field is in the first line
 
-    return std::stoi(firstLine.substr(firstLine.find_first_of(DIGITS), firstLine.find_last_of(DIGITS)));
+    return GetIntegerValFromLine(firstLine);
 }
+
+std::string ProcessRetreiver::GetProcessName(std::ifstream &statusFile) const {
+    std::string firstLine;
+    std::getline(statusFile, firstLine);
+    return GetStringValFromLine(firstLine);
+}
+
+/*
+format:
+Key:    value
+
+amount of spaces is unknown
+ */
+std::string ProcessRetreiver::GetStringValFromLine(const std::string &line) const {
+    return line.substr(line.find_last_of(" "));
+}
+
+int ProcessRetreiver::GetIntegerValFromLine(const std::string &line) const {
+    return std::stoi(line.substr(line.find_first_of(DIGITS), line.find_last_of(DIGITS)));
+}
+
+
 
