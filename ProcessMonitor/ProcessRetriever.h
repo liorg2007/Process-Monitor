@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <filesystem>
 
 struct Process {
     const pid_t PID;
@@ -31,9 +32,11 @@ public:
 private:
     static constexpr auto DIGITS = "0123456789";
     static constexpr auto MEMINFO_FILE_PATH = "/proc/meminfo";
+    static constexpr std::filesystem::path PROC_DIR_PATH{"/proc"};
 
     static constexpr auto MEMINFO_FILE_ERROR = "Can't open /proc/meminfo";
 
+    bool IsNumeric(const std::string& string) const;
     [[nodiscard]] int GetMemTotal() const;
 
     const int memTotal_;

@@ -4,12 +4,23 @@
 
 #include "ProcessRetriever.h"
 
-#include <iostream>
-
 
 ProcessRetreiver::ProcessRetreiver()
  : memTotal_(GetMemTotal()) {
 
+}
+
+std::vector<Process> ProcessRetreiver::GetRunningProcesses() const {
+
+}
+
+bool ProcessRetreiver::IsNumeric(const std::string &string) const {
+    for(const auto& letter : string) {
+        if(!std::isdigit(letter))
+            return false;
+    }
+
+    return true;
 }
 
 int ProcessRetreiver::GetMemTotal() const {
