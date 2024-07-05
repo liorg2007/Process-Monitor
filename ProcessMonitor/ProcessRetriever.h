@@ -13,11 +13,11 @@
 struct Process {
     const pid_t PID;
     const std::string name;
-    const double CPUUsage;
+    const double CPU_Usage;
     const double memUsage;
 
-    Process(const pid_t pid, const std::string& n, const double cpu, const double mem)
-        :PID(pid), name(n), CPUUsage(cpu), memUsage(mem)
+    Process(const pid_t PID, const std::string& name, const double CPU_Usage, const double memUsage)
+        :PID(PID), name(name), CPU_Usage(CPU_Usage), memUsage(memUsage)
     {}
 };
 
@@ -25,10 +25,18 @@ class ProcessRetreiver
 {
 public:
     ProcessRetreiver();
-    [[nodiscard]] std::vector<Process> getRunningProcesses() const;
+
+    [[nodiscard]] std::vector<Process> GetRunningProcesses() const;
 
 private:
-    int m_MemTotal;
+    static constexpr auto DIGITS = "0123456789";
+    static constexpr auto MEMINFO_FILE_PATH = "/proc/meminfo";
+
+    static constexpr auto MEMINFO_FILE_ERROR = "Can't open /proc/meminfo";
+
+    [[nodiscard]] int GetMemTotal() const;
+
+    const int memTotal_;
 };
 
 
