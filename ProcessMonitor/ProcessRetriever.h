@@ -32,7 +32,7 @@ public:
 private:
     static constexpr auto DIGITS = "0123456789";
     static constexpr auto MEMINFO_FILE_PATH = "/proc/meminfo";
-    static constexpr std::filesystem::path PROC_DIR_PATH{"/proc"};
+    const std::filesystem::path PROC_DIR_PATH{"/proc"};
     static constexpr auto STATUS_FILE_PATH = "/status";
     static constexpr  auto VM_RSS_KEY = "VmRSS";
 

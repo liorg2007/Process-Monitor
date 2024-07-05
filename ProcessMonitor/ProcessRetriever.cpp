@@ -3,7 +3,7 @@
 //
 
 #include "ProcessRetriever.h"
-
+#include <iostream>
 #include <algorithm>
 
 
@@ -21,11 +21,13 @@ std::vector<Process> ProcessRetreiver::GetRunningProcesses() const {
 
         std::ifstream statusFile(entry.path().string() + STATUS_FILE_PATH);
 
+        std::string procName = GetProcessName(statusFile);
         processes.emplace_back(
             std::stoi(entry.path().filename().string()),
-            GetProcessName(statusFile),
+            procName,
             GetProcessCPU_Usage(entry),
             GetProcessMemoryUsage(statusFile));
+
     }
     return processes;
 }
@@ -61,10 +63,17 @@ double ProcessRetreiver::GetProcessMemoryUsage(std::ifstream &statusFile) const 
     std::string line;
     std::getline(statusFile, line);
 
-    while(!line.starts_with(VM_RSS_KEY))
+    while(!line.starts_with(VM_RSS_KEY)) {
+        if(statusFile.eof())
+            return 0;
         std::getline(statusFile, line);
+    }
 
     return GetIntegerValFromLine(line) / static_cast<double>(memTotal_) * 100;
+}
+
+double ProcessRetreiver::GetProcessCPU_Usage(const std::filesystem::directory_entry &dir) const {
+    return 0.0;
 }
 
 /*
@@ -74,7 +83,7 @@ Key:    value
 amount of spaces is unknown
  */
 std::string ProcessRetreiver::GetStringValFromLine(const std::string &line) const {
-    return line.substr(line.find_last_of(" "));
+    return line.substr(line.find_last_of("\t") + 1);
 }
 
 int ProcessRetreiver::GetIntegerValFromLine(const std::string &line) const {
