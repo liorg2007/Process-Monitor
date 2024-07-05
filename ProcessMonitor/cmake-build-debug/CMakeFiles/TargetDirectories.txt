@@ -1,0 +1,3 @@
+/home/lior/CLionProjects/ProcessMonitor/process-monitor/ProcessMonitor/cmake-build-debug/CMakeFiles/ProcessMonitor.dir
+/home/lior/CLionProjects/ProcessMonitor/process-monitor/ProcessMonitor/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/lior/CLionProjects/ProcessMonitor/process-monitor/ProcessMonitor/cmake-build-debug/CMakeFiles/rebuild_cache.dir
