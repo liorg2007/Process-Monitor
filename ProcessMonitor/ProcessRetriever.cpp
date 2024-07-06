@@ -3,7 +3,6 @@
 //
 
 #include "ProcessRetriever.h"
-#include <iostream>
 #include <algorithm>
 
 
@@ -12,8 +11,9 @@ ProcessRetreiver::ProcessRetreiver()
 
 }
 
-std::vector<Process> ProcessRetreiver::GetRunningProcesses() const {
+std::vector<Process> ProcessRetreiver::GetRunningProcesses() {
     std::vector<Process> processes;
+
     for(const auto& entry : std::filesystem::directory_iterator(PROC_DIR_PATH)) {
         if(!IsNumeric(entry.path().filename().string()) ||
             !entry.is_directory())
@@ -32,7 +32,7 @@ std::vector<Process> ProcessRetreiver::GetRunningProcesses() const {
     return processes;
 }
 
-bool ProcessRetreiver::IsNumeric(const std::string &string) const {
+bool ProcessRetreiver::IsNumeric(const std::string_view &string) const {
     for(const auto& letter : string) {
         if(!std::isdigit(letter))
             return false;
@@ -72,8 +72,40 @@ double ProcessRetreiver::GetProcessMemoryUsage(std::ifstream &statusFile) const 
     return GetIntegerValFromLine(line) / static_cast<double>(memTotal_) * 100;
 }
 
-double ProcessRetreiver::GetProcessCPU_Usage(const std::filesystem::directory_entry &dir) const {
-    return 0.0;
+double ProcessRetreiver::GetProcessCPU_Usage(const std::filesystem::directory_entry &dir)  {
+    std::ifstream statFile(dir.path().string() + STAT_FILE_PATH);
+    std::string line;
+    std::getline(statFile, line);
+    double utime, stime, startTime;
+    std::string trashValue;
+
+    std::stringstream ss(line);
+
+    for(int i = 0; i<UTIME_INDEX; i++)
+        ss >> trashValue;
+
+    ss >> utime;
+    ss >> stime; //stime is one index after utime
+
+    for(int i = UTIME_INDEX + 1; i<START_TIME_INDEX; i++)
+        ss >> trashValue;
+
+    ss >> startTime;
+
+    //clock tick into seconds
+    utime /= CLK_TCK;
+    stime /= CLK_TCK;
+    startTime /= CLK_TCK;
+    double upTime = GetSystemUpTime();
+    return (utime + stime) * 100 / (GetSystemUpTime() - startTime);
+}
+
+double ProcessRetreiver::GetSystemUpTime() {
+    std::ifstream uptimeFile(UPTIME_DIR_PATH);
+    std::string line;
+    std::getline(uptimeFile, line);
+
+    return std::stod(line.substr(0, line.find_first_of(" "))); //first number in the uptime file
 }
 
 /*
