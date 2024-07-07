@@ -20,12 +20,15 @@ std::list<Process> ProcessRetreiver::GetRunningProcesses() {
 
 		std::ifstream statusFile(entry.path().string() + STATUS_FILE_PATH);
 
+		auto [CPU_usage, startTime] = GetProcessCPU_UsageAndStartTime(entry);
+
 		std::string procName = GetProcessName(statusFile);
 		processes.emplace_back(
 			entry.path().filename().string(),
 			procName,
-			GetProcessCPU_Usage(entry),
-			GetProcessMemoryUsage(statusFile));
+			CPU_usage,
+			GetProcessMemoryUsage(statusFile),
+			startTime);
 
 	}
 	return processes;
@@ -71,7 +74,7 @@ double ProcessRetreiver::GetProcessMemoryUsage(std::ifstream &statusFile) const 
 	return GetIntegerValFromLine(line) / static_cast<double>(memTotal_) * 100;
 }
 
-double ProcessRetreiver::GetProcessCPU_Usage(const std::filesystem::directory_entry &dir)  {
+std::pair<double, double> ProcessRetreiver::GetProcessCPU_UsageAndStartTime(const std::filesystem::directory_entry &dir)  {
 	std::ifstream statFile(dir.path().string() + STAT_FILE_PATH);
 	std::string line;
 	std::getline(statFile, line);
@@ -95,8 +98,8 @@ double ProcessRetreiver::GetProcessCPU_Usage(const std::filesystem::directory_en
 	utime /= CLK_TCK;
 	stime /= CLK_TCK;
 	startTime /= CLK_TCK;
-	double upTime = GetSystemUpTime();
-	return (utime + stime) * 100 / (GetSystemUpTime() - startTime);
+
+	return std::pair<double, double>((utime + stime) * 100 / (GetSystemUpTime() - startTime), startTime);
 }
 
 double ProcessRetreiver::GetSystemUpTime() {

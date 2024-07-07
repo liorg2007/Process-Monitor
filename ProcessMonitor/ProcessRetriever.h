@@ -20,9 +20,10 @@ struct Process {
 	const std::string name;
 	const double CPU_Usage;
 	const double memUsage;
+	const double startTime;
 
-	Process(const std::string& PID, const std::string& name, const double CPU_Usage, const double memUsage)
-		:PID(PID), name(name), CPU_Usage(CPU_Usage), memUsage(memUsage)
+	Process(const std::string& PID, const std::string& name, const double CPU_Usage, const double memUsage, const double startTime)
+		:PID(PID), name(name), CPU_Usage(CPU_Usage), memUsage(memUsage), startTime(startTime)
 	{}
 };
 
@@ -51,7 +52,7 @@ private:
 	[[nodiscard]] int GetMemTotal() const;
 	[[nodiscard]] std::string GetProcessName(std::ifstream& statusFile) const;
 	[[nodiscard]] double GetProcessMemoryUsage(std::ifstream& statusFile) const;
-	[[nodiscard]] double GetProcessCPU_Usage(const std::filesystem::directory_entry& dir);
+	[[nodiscard]] std::pair<double, double> GetProcessCPU_UsageAndStartTime(const std::filesystem::directory_entry& dir);
 	[[nodiscard]] double GetSystemUpTime();
 	std::string GetStringValFromLine(const std::string& line) const;
 	int GetIntegerValFromLine(const std::string& line) const;
