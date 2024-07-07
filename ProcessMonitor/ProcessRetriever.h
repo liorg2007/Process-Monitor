@@ -25,6 +25,15 @@ struct Process {
 	Process(const std::string& PID, const std::string& name, const double CPU_Usage, const double memUsage, const double startTime)
 		:PID(PID), name(name), CPU_Usage(CPU_Usage), memUsage(memUsage), startTime(startTime)
 	{}
+
+	bool operator==(const Process & other) const {
+		return startTime == other.startTime && PID == other.PID;
+	}
+
+	struct hash {
+		auto operator()( const Process& x ) const
+		{ return std::hash< std::string >()( x.PID + "_" +  std::to_string(x.startTime)); }
+	};
 };
 
 class ProcessRetreiver
