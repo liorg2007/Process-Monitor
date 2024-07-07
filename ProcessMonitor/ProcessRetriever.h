@@ -13,14 +13,15 @@
 #include <fstream>
 #include <algorithm>
 #include <filesystem>
+#include <list>
 
 struct Process {
-	const pid_t PID;
+	const std::string PID;
 	const std::string name;
 	const double CPU_Usage;
 	const double memUsage;
 
-	Process(const pid_t PID, const std::string& name, const double CPU_Usage, const double memUsage)
+	Process(const std::string& PID, const std::string& name, const double CPU_Usage, const double memUsage)
 		:PID(PID), name(name), CPU_Usage(CPU_Usage), memUsage(memUsage)
 	{}
 };
@@ -30,7 +31,7 @@ class ProcessRetreiver
 public:
 	ProcessRetreiver();
 
-	[[nodiscard]] std::vector<Process> GetRunningProcesses();
+	[[nodiscard]] std::list<Process> GetRunningProcesses();
 
 private:
 	static constexpr auto DIGITS = "0123456789";

@@ -10,8 +10,8 @@ ProcessRetreiver::ProcessRetreiver()
 
 }
 
-std::vector<Process> ProcessRetreiver::GetRunningProcesses() {
-	std::vector<Process> processes;
+std::list<Process> ProcessRetreiver::GetRunningProcesses() {
+	std::list<Process> processes;
 
 	for(const auto& entry : std::filesystem::directory_iterator(PROC_DIR_PATH)) {
 		if(!IsNumeric(entry.path().filename().string()) ||
@@ -22,7 +22,7 @@ std::vector<Process> ProcessRetreiver::GetRunningProcesses() {
 
 		std::string procName = GetProcessName(statusFile);
 		processes.emplace_back(
-			std::stoi(entry.path().filename().string()),
+			entry.path().filename().string(),
 			procName,
 			GetProcessCPU_Usage(entry),
 			GetProcessMemoryUsage(statusFile));
