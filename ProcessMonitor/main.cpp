@@ -3,5 +3,5 @@
 #include "DataDisplay.h"
 
 int main() {
-	
+
 }

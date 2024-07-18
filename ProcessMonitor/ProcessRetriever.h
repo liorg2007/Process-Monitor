@@ -29,11 +29,12 @@ struct Process {
 	bool operator==(const Process & other) const {
 		return startTime == other.startTime && PID == other.PID;
 	}
+};
 
-	struct hash {
-		auto operator()( const Process& x ) const
-		{ return std::hash< std::string >()( x.PID + "_" +  std::to_string(x.startTime)); }
-	};
+template<>
+struct std::hash<Process> {
+	auto operator()( const Process& x ) const
+	{ return std::hash< std::string >()( x.PID + "_" +  std::to_string(x.startTime)); }
 };
 
 class ProcessRetreiver
