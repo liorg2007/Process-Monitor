@@ -14,11 +14,11 @@ struct NewOrClosedProcesses {
 	std::vector<Process> closed_processes;
 	std::vector<Process> new_processes;
 
-	NewOrClosedProcesses(const std::unordered_set<Process>& new_processes_set, std::vector<Process>& closed_processes)
-		:	closed_processes(std::move(closed_processes)){
-		new_processes.reserve(new_processes_set.size());
-		for(auto& process : new_processes_set)
-			new_processes.push_back(process);
+	NewOrClosedProcesses(std::vector<Process>& new_processes, const std::unordered_set<Process>& closed_processes_set)
+		:	new_processes(std::move(new_processes)){
+		closed_processes.reserve(closed_processes_set.size());
+		for(auto& process : closed_processes_set)
+			closed_processes.push_back(process);
 	}
 };
 

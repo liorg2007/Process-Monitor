@@ -9,14 +9,15 @@
 
 DataDisplay::DataDisplay(double refresh_delay)
 	: refresh_delay_(refresh_delay), keep_display_(true) {
-	initscr();
-
-	//	initialize the windows for the boxes
-	input_box_window_ = newwin(kInputBoxHeight, kBoxWidth, kInputBoxPos, 0);
-	notification_box_window_ = newwin(kNotificationBoxHeight, kBoxWidth, kNotificationBoxPos, 0);
-	process_box_window_ = newwin(kProcessBoxHeight, kBoxWidth, kProcessBoxPos, 0);
-
-	refresh();
+	// initscr();
+	//
+	// //	initialize the windows for the boxes
+	// input_box_window_ = newwin(kInputBoxHeight, kBoxWidth, kInputBoxPos, 0);
+	// notification_box_window_ = newwin(kNotificationBoxHeight, kBoxWidth, kNotificationBoxPos, 0);
+	// process_box_window_ = newwin(kProcessBoxHeight, kBoxWidth, kProcessBoxPos, 0);
+	//
+	// refresh();
+	DisplayProcceses();
 }
 
 DataDisplay::~DataDisplay() {
@@ -43,18 +44,22 @@ void DataDisplay::DisplayProcceses() {
 NewOrClosedProcesses DataDisplay::GetNewOrClosedProcesses(
 		const std::list<Process> &retreived_processes,
 		const std::unordered_set<Process> &previous_processes) {
-	std::vector<Process> closed_processes;
+
+	std::vector<Process> new_processes;
 	std::unordered_set<Process> previous_processes_copy = previous_processes;
 
-	closed_processes.reserve(previous_processes.size());
+	new_processes.reserve(previous_processes.size());
 
 	for(const auto& process : retreived_processes) {
-		if(!previous_processes.contains(process)) {
-			closed_processes.push_back(process);
+		if(!previous_processes_copy.contains(process)) {
+			new_processes.push_back(process);
+		}
+		else {
 			previous_processes_copy.erase(process);
 		}
+
 	}
 
-	return {previous_processes_copy, closed_processes};
+	return {new_processes, previous_processes_copy};
 }
 
