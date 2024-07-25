@@ -7,6 +7,7 @@
 
 #include <ncurses.h>
 #include <unordered_set>
+#include <atomic>
 
 #include "ProcessRetriever.h"
 
@@ -25,15 +26,15 @@ struct NewOrClosedProcesses {
 
 class DataDisplay {
 public:
-	explicit DataDisplay(double refresh_delay);
+	explicit DataDisplay(unsigned int refresh_delay);
 	~DataDisplay();
 
 
 private:
 	//	box dimensions
-	auto static constexpr kBoxWidth = 100;
+	auto static constexpr kBoxWidth = 70;
 	auto static constexpr kInputBoxHeight = 3;
-	auto static constexpr kProcessBoxHeight = 50;
+	auto static constexpr kProcessBoxHeight = 52;
 	auto static constexpr kNotificationBoxHeight = 3;
 
 	//	box positions
@@ -41,18 +42,33 @@ private:
 	auto static constexpr kNotificationBoxPos = 3;
 	auto static constexpr kProcessBoxPos = 6;
 
-	void DisplayProcceses();
-	static NewOrClosedProcesses GetNewOrClosedProcesses(const std::list<Process>& retreived_processes, const std::unordered_set<Process>& previous_processes);
+	//	process box positions
+	auto static constexpr kPidPos = 1;
+	auto static constexpr kNamePos = 6;
+	auto static constexpr kCpuPos = 46;
+	auto static constexpr kMemPos = 55;
 
-	std::list<Process> retreived_processes_;
+	auto static constexpr kProcViewLimit = 50;
+
+	void RunDisplay();
+
+	void RetreiveAndShowProcessesThread();
+	void InitProcessBox();
+	void ShowNotifications(const NewOrClosedProcesses& update);
+
+	static NewOrClosedProcesses GetNewOrClosedProcesses(const std::vector<Process>& retreived_processes, const std::unordered_set<Process>& previous_processes);
+
+	std::vector<Process> retreived_processes_;
 	ProcessRetreiver retreiver_;
 
 	WINDOW* input_box_window_;
 	WINDOW* process_box_window_;
 	WINDOW* notification_box_window_;
 
-	double refresh_delay_;
-	bool keep_display_;
+	int process_view_shift_;
+
+	unsigned int refresh_delay_;
+	std::atomic<bool> keep_display_;
 };
 
 

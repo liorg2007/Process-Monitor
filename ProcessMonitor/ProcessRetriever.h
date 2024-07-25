@@ -42,7 +42,7 @@ class ProcessRetreiver
 public:
 	ProcessRetreiver();
 
-	[[nodiscard]] std::list<Process> GetRunningProcesses();
+	[[nodiscard]] std::vector<Process> GetRunningProcesses();
 
 private:
 	static constexpr auto DIGITS = "0123456789";

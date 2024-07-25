@@ -10,8 +10,8 @@ ProcessRetreiver::ProcessRetreiver()
 
 }
 
-std::list<Process> ProcessRetreiver::GetRunningProcesses() {
-	std::list<Process> processes;
+std::vector<Process> ProcessRetreiver::GetRunningProcesses() {
+	std::vector<Process> processes;
 
 	for(const auto& entry : std::filesystem::directory_iterator(PROC_DIR_PATH)) {
 		if(!IsNumeric(entry.path().filename().string()) ||
