@@ -4,11 +4,13 @@
 
 #include "DataDisplay.h"
 
+#include <future>
 #include <iostream>
+#include <thread>
 #include <unistd.h>
 
 DataDisplay::DataDisplay(unsigned int refresh_delay)
-	: refresh_delay_(refresh_delay), keep_display_(true) {
+	: refresh_delay_(refresh_delay), keep_display_(true) , process_view_shift_(100){
 	initscr();
 
 	//	initialize the windows for the boxes
@@ -30,19 +32,18 @@ DataDisplay::~DataDisplay() {
 }
 
 void DataDisplay::RunDisplay() {
+
 	RetreiveAndShowProcessesThread();
 }
 
 void DataDisplay::RetreiveAndShowProcessesThread() {
 	while(keep_display_) {
-		std::unordered_set<Process> previous_processes(retreived_processes_.begin(), retreived_processes_.end());	//	save the previous processes to track changes
+		std::thread notificationThread;
 		retreived_processes_ = retreiver_.GetRunningProcesses();	//	get the new processes
 
-		if(!previous_processes.empty()) {
-			NewOrClosedProcesses update = GetNewOrClosedProcesses(retreived_processes_, previous_processes);
-		}
-
+		notificationThread = std::thread(&DataDisplay::ShowNotifications, this);
 		//show the processesw
+
 		InitProcessBox();
 
 		for(int i = process_view_shift_, row = 2; row <= kProcViewLimit; row++, i++) {
@@ -52,19 +53,49 @@ void DataDisplay::RetreiveAndShowProcessesThread() {
 			mvwprintw(process_box_window_, row, kCpuPos, "%.2f%%", proc.CPU_Usage);
 			mvwprintw(process_box_window_, row, kMemPos, "%.2f%%", proc.memUsage);
 		}
-		wrefresh(process_box_window_);
+		{
+			std::lock_guard lock(screen_init_mtx_);
+			wrefresh(process_box_window_);
+		}
 
 		sleep(refresh_delay_);
+		notificationThread.join();
 	}
 }
 
+void DataDisplay::ShowNotifications() {
+	std::unordered_set<Process> previous_processes(retreived_processes_.begin(), retreived_processes_.end());	//	save the previous processes to track changes
+	InitNotificationBox();
+	if(previous_processes.empty())
+		return;
+
+	NewOrClosedProcesses update = GetNewOrClosedProcesses(retreived_processes_, previous_processes);
+
+	if(update.closed_processes.empty() && update.new_processes.empty())
+		return;
+
+}
+
 void DataDisplay::InitProcessBox() {
+	werase(process_box_window_);
 	box(process_box_window_, 0, 0);
 	mvwprintw(process_box_window_, 1, kPidPos, "PID");
 	mvwprintw(process_box_window_, 1, kNamePos, "NAME");
 	mvwprintw(process_box_window_, 1, kCpuPos, "CPU%%");
 	mvwprintw(process_box_window_, 1, kMemPos, "MEMORY%%");
-	wrefresh(process_box_window_);
+	{
+		std::lock_guard lock(screen_init_mtx_);
+		wrefresh(process_box_window_);
+	}
+}
+
+void DataDisplay::InitNotificationBox() {
+	werase(notification_box_window_);
+	box(notification_box_window_, 0, 0);
+	{
+		std::lock_guard lock(screen_init_mtx_);
+		wrefresh(notification_box_window_);
+	}
 }
 
 NewOrClosedProcesses DataDisplay::GetNewOrClosedProcesses(

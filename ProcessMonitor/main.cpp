@@ -3,5 +3,10 @@
 #include "DataDisplay.h"
 
 int main() {
-	DataDisplay d(3);
+	try {
+		DataDisplay d(1);
+	}
+	catch(std::exception& e) {
+		std::cout << e.what();
+	}
 }

@@ -8,6 +8,7 @@
 #include <ncurses.h>
 #include <unordered_set>
 #include <atomic>
+#include <shared_mutex>
 
 #include "ProcessRetriever.h"
 
@@ -53,8 +54,10 @@ private:
 	void RunDisplay();
 
 	void RetreiveAndShowProcessesThread();
+	void ShowNotifications();
+
 	void InitProcessBox();
-	void ShowNotifications(const NewOrClosedProcesses& update);
+	void InitNotificationBox();
 
 	static NewOrClosedProcesses GetNewOrClosedProcesses(const std::vector<Process>& retreived_processes, const std::unordered_set<Process>& previous_processes);
 
@@ -64,6 +67,8 @@ private:
 	WINDOW* input_box_window_;
 	WINDOW* process_box_window_;
 	WINDOW* notification_box_window_;
+
+	std::mutex screen_init_mtx_;
 
 	int process_view_shift_;
 
