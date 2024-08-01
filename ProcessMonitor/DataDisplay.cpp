@@ -216,7 +216,7 @@ void DataDisplay::InitHelpBox() {
 
 	wmove(help_box_window_, 4, 1);
 	mvwprintw(help_box_window_, 1, 1, "Move view: arrow up/down");
-	mvwprintw(help_box_window_, 2, 1, "Sort: p-PID c-CPU%% m-MEM%% n-NAME a-Accending d-Deccending");
+	mvwprintw(help_box_window_, 2, 1, "Sort: p-PID c-CPU%% m-MEM%% n-NAME a-Ascending d-Descending");
 	mvwprintw(help_box_window_, 3, 1, "Change refresh rate: r");
 	mvwprintw(help_box_window_, 4, 1, "Quit - q");
 
