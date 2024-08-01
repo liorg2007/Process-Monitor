@@ -15,6 +15,7 @@ This project is a process monitor written in C++ for Linux systems. It retrieves
 ### Dependencies
 
 * cmake 3.25 and higher
+[Get the most recent version of cmake, follow the first answer in method 'A'](https://askubuntu.com/questions/355565/how-do-i-install-the-latest-version-of-cmake-from-the-command-line)
 * ncurses library (`libncurses5-dev` on Debian/Ubuntu)
 
 ```bash
