@@ -69,3 +69,5 @@ The application displays a list of running processes. You can interact with the 
 * `r`: Edit the refresh rate
 * `q`: Quit the application
 
+![Alt text](https://github.com/liorg2007/Process-Monitor/blob/main/screenshot.png)
+
