@@ -13,16 +13,51 @@
 #include <fstream>
 #include <algorithm>
 #include <filesystem>
+#include <list>
+
+#include <string>
 
 struct Process {
-	const pid_t PID;
-	const std::string name;
-	const double CPU_Usage;
-	const double memUsage;
+	std::string PID;
+	std::string name;
+	double CPU_Usage;
+	double memUsage;
+	double startTime;
 
-	Process(const pid_t PID, const std::string& name, const double CPU_Usage, const double memUsage)
-		:PID(PID), name(name), CPU_Usage(CPU_Usage), memUsage(memUsage)
+	Process(const std::string& PID, const std::string& name, const double CPU_Usage, const double memUsage, const double startTime)
+			: PID(PID), name(name), CPU_Usage(CPU_Usage), memUsage(memUsage), startTime(startTime)
 	{}
+
+	bool operator==(const Process &other) const {
+		return startTime == other.startTime && PID == other.PID;
+	}
+
+	Process(const Process& other)
+			: PID(other.PID), name(other.name), CPU_Usage(other.CPU_Usage), memUsage(other.memUsage), startTime(other.startTime) {
+	}
+
+	Process& operator=(Process&& other) noexcept {
+		if (this != &other) {
+			PID = std::move(other.PID);
+			name = std::move(other.name);
+			CPU_Usage = other.CPU_Usage;
+			memUsage = other.memUsage;
+			startTime = other.startTime;
+
+			// Set other members to default values
+			other.CPU_Usage = 0;
+			other.memUsage = 0;
+			other.startTime = 0;
+		}
+		return *this;
+	}
+};
+
+
+template<>
+struct std::hash<Process> {
+	auto operator()( const Process& x ) const
+	{ return std::hash< std::string >()( x.PID + "_" +  std::to_string(x.startTime)); }
 };
 
 class ProcessRetreiver
@@ -50,7 +85,7 @@ private:
 	[[nodiscard]] int GetMemTotal() const;
 	[[nodiscard]] std::string GetProcessName(std::ifstream& statusFile) const;
 	[[nodiscard]] double GetProcessMemoryUsage(std::ifstream& statusFile) const;
-	[[nodiscard]] double GetProcessCPU_Usage(const std::filesystem::directory_entry& dir);
+	[[nodiscard]] std::pair<double, double> GetProcessCPU_UsageAndStartTime(const std::filesystem::directory_entry& dir);
 	[[nodiscard]] double GetSystemUpTime();
 	std::string GetStringValFromLine(const std::string& line) const;
 	int GetIntegerValFromLine(const std::string& line) const;
