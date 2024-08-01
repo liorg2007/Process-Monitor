@@ -15,21 +15,44 @@
 #include <filesystem>
 #include <list>
 
+#include <string>
+
 struct Process {
-	const std::string PID;
-	const std::string name;
-	const double CPU_Usage;
-	const double memUsage;
-	const double startTime;
+	std::string PID;
+	std::string name;
+	double CPU_Usage;
+	double memUsage;
+	double startTime;
 
 	Process(const std::string& PID, const std::string& name, const double CPU_Usage, const double memUsage, const double startTime)
-		:PID(PID), name(name), CPU_Usage(CPU_Usage), memUsage(memUsage), startTime(startTime)
+			: PID(PID), name(name), CPU_Usage(CPU_Usage), memUsage(memUsage), startTime(startTime)
 	{}
 
-	bool operator==(const Process & other) const {
+	bool operator==(const Process &other) const {
 		return startTime == other.startTime && PID == other.PID;
 	}
+
+	Process(const Process& other)
+			: PID(other.PID), name(other.name), CPU_Usage(other.CPU_Usage), memUsage(other.memUsage), startTime(other.startTime) {
+	}
+
+	Process& operator=(Process&& other) noexcept {
+		if (this != &other) {
+			PID = std::move(other.PID);
+			name = std::move(other.name);
+			CPU_Usage = other.CPU_Usage;
+			memUsage = other.memUsage;
+			startTime = other.startTime;
+
+			// Set other members to default values
+			other.CPU_Usage = 0;
+			other.memUsage = 0;
+			other.startTime = 0;
+		}
+		return *this;
+	}
 };
+
 
 template<>
 struct std::hash<Process> {

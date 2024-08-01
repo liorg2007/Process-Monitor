@@ -8,10 +8,22 @@
 #include <ncurses.h>
 #include <unordered_set>
 #include <atomic>
+#include <map>
 #include <shared_mutex>
 
 #include "ProcessRetriever.h"
 
+enum class KEYS {
+	MOVE_UP = KEY_UP,
+	MOVE_DOWN = KEY_DOWN,
+	SORT_PID = 'p',
+	SORT_CPU = 'c',
+	SORT_MEM = 'm',
+	SORT_NAME = 'n',
+	SORT_DEC = 'd',
+	SORT_ACCEND = 'a',
+	QUIT = 'q'
+};
 
 
 class DataDisplay {
@@ -23,7 +35,7 @@ public:
 private:
 	//	box dimensions
 	auto static constexpr kBoxWidth = 70;
-	auto static constexpr kInputBoxHeight = 3;
+	auto static constexpr kInputBoxHeight = 6;
 	auto static constexpr kProcessBoxHeight = 52;
 
 	//	box positions
@@ -36,15 +48,17 @@ private:
 	auto static constexpr kCpuPos = 48;
 	auto static constexpr kMemPos = 57;
 
+
 	auto static constexpr kProcViewLimit = 50;
 
 	void RunDisplay();
 
 	void ProcessUserInput();
 	void RetreiveAndShowProcessesThread();
+	void SortProcesses(KEYS sortOption, bool isDecending);
 
 	void InitProcessBox();
-	void InitInputBox();
+	void InitHelpBox();
 
 	void IncViewShift(int shift);
 	int GetViewShift();
@@ -52,13 +66,15 @@ private:
 	std::vector<Process> retreived_processes_;
 	ProcessRetreiver retreiver_;
 
-	WINDOW* input_box_window_;
+	WINDOW* help_box_window_;
 	WINDOW* process_box_window_;
 
 	std::mutex screen_init_mtx_;
 	std::mutex process_view_shift_mtx_;
+	std::mutex process_sort_mutex_;
 
-
+	KEYS sort_option_;
+	bool isDec_;
 	int process_view_shift_;
 
 	unsigned int refresh_delay_;

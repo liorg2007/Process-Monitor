@@ -10,10 +10,11 @@
 #include <unistd.h>
 
 DataDisplay::DataDisplay(unsigned int refresh_delay)
-	: refresh_delay_(refresh_delay), keep_display_(true) , process_view_shift_(0){
+	: refresh_delay_(refresh_delay), keep_display_(true) , process_view_shift_(0), sort_option_(KEYS::SORT_CPU), isDec_(true) {
 	initscr();
+	noecho();
 	//	initialize the windows for the boxes
-	input_box_window_ = newwin(kInputBoxHeight, kBoxWidth, kInputBoxPos, 0);
+	help_box_window_ = newwin(kInputBoxHeight, kBoxWidth, kInputBoxPos, 0);
 	process_box_window_ = newwin(kProcessBoxHeight, kBoxWidth, kProcessBoxPos, 0);
 	nodelay(process_box_window_, TRUE);
 
@@ -23,7 +24,7 @@ DataDisplay::DataDisplay(unsigned int refresh_delay)
 
 DataDisplay::~DataDisplay() {
 	//	delete the memory of the windows
-	delwin(input_box_window_);
+	delwin(help_box_window_);
 	delwin(process_box_window_);
 
 	endwin();
@@ -32,27 +33,44 @@ DataDisplay::~DataDisplay() {
 void DataDisplay::RunDisplay() {
 	std::thread t(&DataDisplay::ProcessUserInput, this);
 	RetreiveAndShowProcessesThread();
+	t.join();
 }
 
 void DataDisplay::ProcessUserInput() {
 	int c;
-	InitInputBox();
+	InitHelpBox();
 
-	keypad(input_box_window_, true);
+	keypad(help_box_window_, true);
 
 	do {
-		c = wgetch(input_box_window_);
-		if(c == KEY_DOWN)
-			IncViewShift(10);
-		else if(c == KEY_UP)
-			IncViewShift(-10);
+		c = wgetch(help_box_window_);
 
-	} while(c != KEY_ENTER);
+		switch(c) {
+			case static_cast<int>(KEYS::MOVE_DOWN):
+				IncViewShift(10);
+				break;
+			case static_cast<int>(KEYS::MOVE_UP):
+				IncViewShift(-10);
+				break;
+			case static_cast<int>(KEYS::SORT_CPU):
+			case static_cast<int>(KEYS::SORT_MEM):
+			case static_cast<int>(KEYS::SORT_PID):
+			case static_cast<int>(KEYS::SORT_NAME): {
+				std::lock_guard lock(process_sort_mutex_);
+				sort_option_ = static_cast<KEYS>(c);
+			}
+			break;
+			case static_cast<int>(KEYS::SORT_DEC):
+			case static_cast<int>(KEYS::SORT_ACCEND): {
+				std::lock_guard lock(process_sort_mutex_);
+				isDec_ = static_cast<KEYS>(c) == KEYS::SORT_DEC;
+			}
+			case static_cast<int>(KEYS::QUIT):
+				break;
+		}
 
-	{
-		std::lock_guard lock(screen_init_mtx_);
-		wrefresh(input_box_window_);
-	}
+	} while(c != static_cast<int>(KEYS::QUIT));
+	keep_display_ = false;
 }
 
 void DataDisplay::RetreiveAndShowProcessesThread() {
@@ -66,6 +84,16 @@ void DataDisplay::RetreiveAndShowProcessesThread() {
 
 		int vecSize = retreived_processes_.size();
 		int viewShift = GetViewShift();
+		KEYS sortOption;
+		bool isDecend;
+
+		{
+			std::lock_guard lock(process_sort_mutex_);
+			sortOption = sort_option_;
+			isDecend = isDec_;
+		}
+
+		SortProcesses(sortOption, isDecend);
 
 		for(int i = 0, row = 2; row <= kProcViewLimit && i < vecSize; row++, i++) {
 			auto& proc = retreived_processes_.at((viewShift + i) % vecSize);
@@ -85,6 +113,40 @@ void DataDisplay::RetreiveAndShowProcessesThread() {
 	}
 }
 
+void DataDisplay::SortProcesses(KEYS sortOption, bool isDecending) {
+	std::function<bool(const Process&, const Process&)>  comparator;
+
+	switch (sortOption) {
+		case KEYS::SORT_CPU: // Sort by 'value'
+			comparator = [](const Process &a, const Process &b) {
+				return a.CPU_Usage < b.CPU_Usage;
+		};
+		break;
+		case KEYS::SORT_NAME: // Sort by 'name'
+			comparator = [](const Process &a, const Process &b) {
+				return a.name < b.name;
+		};
+		break;
+		case KEYS::SORT_PID: // Sort by 'score'
+			comparator = [](const Process &a, const Process &b) {
+				return stoi(a.PID) < stoi(b.PID);
+		};
+		break;
+		case KEYS::SORT_MEM: // Sort by 'score'
+			comparator = [](const Process &a, const Process &b) {
+				return a.memUsage < b.memUsage;
+		};
+
+	}
+
+	if (isDecending) {
+		std::ranges::sort(retreived_processes_, [comparator](const Process &a, const Process &b) {
+				return comparator(b, a); // Reverse the comparator
+		});
+	} else {
+		std::ranges::sort(retreived_processes_, comparator);
+	}
+}
 
 
 void DataDisplay::InitProcessBox() {
@@ -100,12 +162,16 @@ void DataDisplay::InitProcessBox() {
 	}
 }
 
-void DataDisplay::InitInputBox() {
-	werase(input_box_window_);
-	box(input_box_window_, 0, 0);
+void DataDisplay::InitHelpBox() {
+	werase(help_box_window_);
+	box(help_box_window_, 0, 0);
+
+	mvwprintw(help_box_window_, 1, 1, "Move view: arrow up/down");
+	mvwprintw(help_box_window_, 2, 1, "Sort: p-PID c-CPU%% m-MEM%% n-NAME a-Accending d-Deccending");
+
 	{
 		std::lock_guard lock(screen_init_mtx_);
-		wrefresh(input_box_window_);
+		wrefresh(help_box_window_);
 	}
 }
 
