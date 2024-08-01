@@ -32,7 +32,7 @@ sudo apt update && sudo apt install build-essential
 2. Make sure you have the required dependencies installed.
 3. Create a build directory 
 ``` bash
-cd ProcessMonitor
+cd process-monitor/ProcessMonitor
 mkdir build
 ```
 4. Change directory to the build
