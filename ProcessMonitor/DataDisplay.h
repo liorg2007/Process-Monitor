@@ -32,17 +32,22 @@ private:
 
 	//	process box positions
 	auto static constexpr kPidPos = 1;
-	auto static constexpr kNamePos = 6;
-	auto static constexpr kCpuPos = 46;
-	auto static constexpr kMemPos = 55;
+	auto static constexpr kNamePos = 8;
+	auto static constexpr kCpuPos = 48;
+	auto static constexpr kMemPos = 57;
 
 	auto static constexpr kProcViewLimit = 50;
 
 	void RunDisplay();
 
+	void ProcessUserInput();
 	void RetreiveAndShowProcessesThread();
 
 	void InitProcessBox();
+	void InitInputBox();
+
+	void IncViewShift(int shift);
+	int GetViewShift();
 
 	std::vector<Process> retreived_processes_;
 	ProcessRetreiver retreiver_;
@@ -51,6 +56,8 @@ private:
 	WINDOW* process_box_window_;
 
 	std::mutex screen_init_mtx_;
+	std::mutex process_view_shift_mtx_;
+
 
 	int process_view_shift_;
 
