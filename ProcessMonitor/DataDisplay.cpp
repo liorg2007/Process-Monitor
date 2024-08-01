@@ -13,10 +13,16 @@ DataDisplay::DataDisplay(unsigned int refresh_delay)
 	: refresh_delay_(refresh_delay), keep_display_(true) , process_view_shift_(0), sort_option_(KEYS::SORT_CPU), isDec_(true) {
 	initscr();
 	noecho();
+	curs_set(0);
 	//	initialize the windows for the boxes
 	help_box_window_ = newwin(kInputBoxHeight, kBoxWidth, kInputBoxPos, 0);
 	process_box_window_ = newwin(kProcessBoxHeight, kBoxWidth, kProcessBoxPos, 0);
+
 	nodelay(process_box_window_, TRUE);
+
+	leaveok(process_box_window_, TRUE);
+	leaveok(help_box_window_, TRUE);
+
 
 	refresh();
 	RunDisplay();
@@ -65,6 +71,10 @@ void DataDisplay::ProcessUserInput() {
 				std::lock_guard lock(process_sort_mutex_);
 				isDec_ = static_cast<KEYS>(c) == KEYS::SORT_DEC;
 			}
+			break;
+			case static_cast<int>(KEYS::CHANGE_REFRESH):
+				beep();
+				ChangeRefresh();
 			case static_cast<int>(KEYS::QUIT):
 				break;
 		}
@@ -148,6 +158,44 @@ void DataDisplay::SortProcesses(KEYS sortOption, bool isDecending) {
 	}
 }
 
+void DataDisplay::ChangeRefresh() {
+	std::string printingString = "Enter new refresh time(seconds): ";
+	wattron(help_box_window_, A_REVERSE);
+	mvwprintw(help_box_window_, 4, 1, printingString.c_str());
+	{
+		std::lock_guard lock(screen_init_mtx_);
+		wrefresh(help_box_window_);
+	}
+	int refresh = 0;
+	int c;
+
+	do {
+		c = wgetch(help_box_window_);
+
+		if(c == KEY_BACKSPACE && refresh > 0) {
+			beep();
+			refresh /= 10;
+		}
+		else if(c >= '0' && c <= '9')
+			refresh = refresh*10 + c - '0';
+		else
+			continue;
+
+		winsdelln(help_box_window_, 4);
+		mvwprintw(help_box_window_, 4, 1, (printingString + std::to_string(refresh)).c_str());
+		{
+			std::lock_guard lock(screen_init_mtx_);
+			wrefresh(help_box_window_);
+		}
+
+	}while (c != '\n');
+	beep();
+
+	wattroff(help_box_window_, A_REVERSE);
+	InitHelpBox();
+	refresh_delay_ = refresh == 0? refresh_delay_ : refresh;
+}
+
 
 void DataDisplay::InitProcessBox() {
 	werase(process_box_window_);
@@ -166,8 +214,11 @@ void DataDisplay::InitHelpBox() {
 	werase(help_box_window_);
 	box(help_box_window_, 0, 0);
 
+	wmove(help_box_window_, 4, 1);
 	mvwprintw(help_box_window_, 1, 1, "Move view: arrow up/down");
 	mvwprintw(help_box_window_, 2, 1, "Sort: p-PID c-CPU%% m-MEM%% n-NAME a-Accending d-Deccending");
+	mvwprintw(help_box_window_, 3, 1, "Change refresh rate: r");
+	mvwprintw(help_box_window_, 4, 1, "Quit - q");
 
 	{
 		std::lock_guard lock(screen_init_mtx_);

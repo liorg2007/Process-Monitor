@@ -4,7 +4,7 @@
 
 int main() {
 	try {
-		DataDisplay d(1);
+		DataDisplay d(3);
 	}
 	catch(std::exception& e) {
 		std::cout << e.what();

@@ -22,6 +22,7 @@ enum class KEYS {
 	SORT_NAME = 'n',
 	SORT_DEC = 'd',
 	SORT_ACCEND = 'a',
+	CHANGE_REFRESH = 'r',
 	QUIT = 'q'
 };
 
@@ -56,6 +57,7 @@ private:
 	void ProcessUserInput();
 	void RetreiveAndShowProcessesThread();
 	void SortProcesses(KEYS sortOption, bool isDecending);
+	void ChangeRefresh();
 
 	void InitProcessBox();
 	void InitHelpBox();
